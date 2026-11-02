@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAĞMUR</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg-start: #0f172a;
+    --bg-end: #1e293b;
+    --accent: #38bdf8;
+    --accent-soft: rgba(56, 189, 248, 0.15);
+    --text: #f8fafc;
+    --text-dim: #94a3b8;
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+  }
+
+  html, body {
+    height: 100%;
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    color: var(--text);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    position: relative;
+  }
+
+  /* Decorative background glow */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.18), transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.12), transparent 45%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .word-wrapper {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 18vw, 10rem);
+    font-weight: 900;
+    letter-spacing: 0.45rem;
+    text-transform: uppercase;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .letter {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.1em;
+    height: 1.1em;
+    cursor: pointer;
+    user-select: none;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 0.25rem 0.5rem;
+    color: var(--text);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    backdrop-filter: blur(10px);
+    outline: none;
+  }
+
+  .letter:hover {
+    transform: translateY(-8px) scale(1.12);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .letter:active {
+    transform: translateY(-2px) scale(1.04);
+  }
+
+  .letter:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  .letter span {
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+
+  /* Poem card */
+  #poem-box {
+    max-width: 700px;
+    width: 100%;
+    padding: 2.5rem 2rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    display: none;
+    color: var(--text);
+  }
+
+  #poem-box.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  #poem-title {
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.05rem;
+  }
+
+  #poem-text {
+    white-space: pre-line;
+    line-height: 1.9;
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    margin-bottom: 1.8rem;
+  }
+
+  .hint {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-style: italic;
+    margin-bottom: 1.6rem;
+  }
+
+  .close {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .close:hover {
+    background: var(--accent);
+    color: var(--bg-start);
+    box-shadow: 0 0 20px var(--accent-soft);
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    animation: float 12s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+    33% { transform: translateY(-20px) translateX(15px); opacity: 0.7; }
+    66% { transform: translateY(10px) translateX(-10px); opacity: 0.5; }
+  }
+
+  @media (max-width: 480px) {
+    .word-wrapper {
+      gap: 0.4rem;
+    }
+    h1 {
+      font-size: clamp(2rem, 22vw, 6rem);
+      letter-spacing: 0.2rem;
+    }
+    #poem-box {
+      padding: 1.8rem 1.2rem;
+      border-radius: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="word-wrapper">
+  <span class="letter" data-letter="Y" role="button" tabindex="0"><span>Y</span></span>
+  <span class="letter" data-letter="A" role="button" tabindex="0"><span>A</span></span>
+  <span class="letter" data-letter="Ğ" role="button" tabindex="0"><span>Ğ</span></span>
+  <span class="letter" data-letter="M" role="button" tabindex="0"><span>M</span></span>
+  <span class="letter" data-letter="U" role="button" tabindex="0"><span>U</span></span>
+  <span class="letter" data-letter="R" role="button" tabindex="0"><span>R</span></span>
+</div>
+
+<div id="poem-box">
+  <h2 id="poem-title"></h2>
+  <p id="poem-text"></p>
+  <div class="hint" id="poem-hint"></div>
+  <div class="close" id="close-poem">Kapa</div>
+</div>
+
+<script>
+  const poems = {
+    Y: {
+      title: "Y ile başlayan şiir",
+      text: "Yağmur damlaları pencereye çarpar,\nYolun sonu hep bir umuttur gönlümde,\nYıldızlar geceye nur dökülür,\nYanar sevgi kalbinde sonsuza dek."
+    },
+    A: {
+      title: "A ile başlayan şiir",
+      text: "Akşam şafakı yanar, kızıl sarışık,\nAğaç dallarında rüzgar dans eder,\nAşkın rengi mavidir, gökten düşer,\nAman dünya ne güzelsin sana."
+    },
+    Ğ: {
+      title: "Ğ ile başlayan şiir",
+      text: "Türkçe alfabesinde Ğ harfiyle başlayan kelime yoktur.\nO yüzden yağmurun sesiyle küçük bir şiir:\n\nGecenin sessizliğinde duyarız\nYağmurun ince fırtınasını,\nRüzgarla beraber sonsuza kadar."
+    },
+    M: {
+      title: "M ile başlayan şiir",
+      text: "Mavi göklerin altında yürürüm,\nMutluluğu arar elimdeki rüzgar,\nMelekler gibi uzun zumrut güller,\nMutluluk hep yanımda olur."
+    },
+    U: {
+      title: "U ile başlayan şiir",
+      text: "Uzaklarda kalan bir deniz,\nUçan kuşlar gölgenin altında,\nUmudun peşinden koşar gönlüm,\nUnutulmaz anlar yaşarız."
+    },
+    R: {
+      title: "R ile başlayan şiir",
+      text: "Rüzgar eser akşam renkleriyle,\nRüya gördüm bir gece gecenin ortasında,\nRenkli dünya, seninle beraber,\nRahmet yağar başımıza her gün."
+    }
+  };
+
+  const letterEls = document.querySelectorAll(".letter");
+  const poemBox = document.getElementById("poem-box");
+  const poemTitle = document.getElementById("poem-title");
+  const poemText = document.getElementById("poem-text");
+  const poemHint = document.getElementById("poem-hint");
+  const closeBtn = document.getElementById("close-poem");
+
+  function showPoem(letter) {
+    const p = poems[letter];
+    poemTitle.textContent = p.title;
+    poemText.textContent = p.text;
+    poemHint.textContent = letter === "Ğ"
+      ? "Türkçe alfabesinde Ğ ile başlayan kelime yoktur, bu yüzden yağmur temalı bir şiir gösterildi."
+      : "Başka bir şiir görmek için farklı bir harfe tıklayın.";
+    poemBox.classList.add("visible");
+  }
+
+  letterEls.forEach((el) => {
+    el.addEventListener("click", () => showPoem(el.dataset.letter));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        showPoem(el.dataset.letter);
+      }
+    });
+  });
+
+  closeBtn.addEventListener("click", () => {
+    poemBox.classList.remove("visible");
+  });
+
+  // Decorative floating particles
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const size = Math.random() * 60 + 20;
+    p.style.width = size + "px";
+    p.style.height = size + "px";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.top = Math.random() * 100 + "vh";
+    p.style.background = `rgba(${Math.random()*60+195}, ${Math.random()*60+195}, 255, ${Math.random()*0.4 + 0.1})`;
+    p.style.animationDelay = Math.random() * 12 + "s";
+    p.style.animationDuration = (Math.random() * 8 + 10) + "s";
+    document.body.appendChild(p);
+  }
+</script>
+
+</body>
+</html>
