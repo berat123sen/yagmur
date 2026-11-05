@@ -12,19 +12,18 @@
   }
 
   :root {
-    --bg-start: #0f172a;
-    --bg-end: #1e293b;
+    --sky-top: #a8d8ff;
+    --sky-mid: #87ceeb;
     --accent: #38bdf8;
-    --accent-soft: rgba(56, 189, 248, 0.15);
-    --text: #f8fafc;
-    --text-dim: #94a3b8;
-    --glass: rgba(255, 255, 255, 0.06);
-    --glass-border: rgba(255, 255, 255, 0.12);
+    --text: #0f172a;
+    --text-dim: #334155;
+    --glass: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.7);
   }
 
   html, body {
     height: 100%;
-    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    background: url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80") center center / cover no-repeat fixed;
     color: var(--text);
     font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     overflow-x: hidden;
@@ -36,36 +35,65 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 2rem 1rem;
+    padding: 1rem 0.5rem;
     position: relative;
   }
 
-  /* Decorative background glow */
-  body::before {
+  /* Rain layer */
+  #rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+  }
+  .drop {
+    position: absolute;
+    top: -20px;
+    width: 2px;
+    height: 22px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.0), rgba(56,189,248,0.85));
+    border-radius: 2px;
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    to {
+      transform: translateY(110vh);
+    }
+  }
+
+  /* Dark overlay for readability over photo */
+  body::after {
     content: "";
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.18), transparent 60%),
-                radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.12), transparent 45%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.35));
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
   }
+  .word-wrapper, #poem-box { position: relative; z-index: 10; }
 
+  /* Word wrapper */
   .word-wrapper {
     width: 100%;
-    max-width: 900px;
+    max-width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.55rem;
-    margin-bottom: 4rem;
+    gap: 0.8rem;
+    margin-bottom: 3.5rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
+    padding: 0 1vw;
+    font-size: clamp(4rem, 13vw, 16rem);
+    gap: 0.5rem;
   }
 
   h1 {
-    font-size: clamp(2.5rem, 18vw, 10rem);
+    font-size: clamp(5rem, 17vw, 22rem);
     font-weight: 900;
-    letter-spacing: 0.45rem;
+    letter-spacing: 0.3rem;
     text-transform: uppercase;
     line-height: 1;
     text-align: center;
@@ -80,36 +108,44 @@
     height: 1.1em;
     cursor: pointer;
     user-select: none;
-    background: var(--glass);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    padding: 0.25rem 0.5rem;
-    color: var(--text);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    backdrop-filter: blur(10px);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    color: #ffffff;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease, text-shadow 0.3s ease;
     outline: none;
+    animation: floatLetter 3.5s ease-in-out infinite;
   }
 
   .letter:hover {
-    transform: translateY(-8px) scale(1.12);
-    background: rgba(255, 255, 255, 0.12);
-    border-color: var(--accent);
-    box-shadow: 0 0 30px var(--accent-soft);
-    color: var(--accent);
-  }
-
-  .letter:active {
-    transform: translateY(-2px) scale(1.04);
+    transform: translateY(-12px) scale(1.15) !important;
+    color: #bae6fd;
+    text-shadow: 0 6px 24px rgba(56,189,248,0.6), 0 2px 8px rgba(0,0,0,0.4);
   }
 
   .letter:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid #0369a1;
     outline-offset: 4px;
   }
 
   .letter span {
     display: block;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  }
+
+  /* Staggered floating animation per letter */
+  .letter:nth-child(1) { animation-delay: 0s; }
+  .letter:nth-child(2) { animation-delay: 0.4s; }
+  .letter:nth-child(3) { animation-delay: 0.8s; }
+  .letter:nth-child(4) { animation-delay: 1.2s; }
+  .letter:nth-child(5) { animation-delay: 1.6s; }
+  .letter:nth-child(6) { animation-delay: 2.0s; }
+
+  @keyframes floatLetter {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
   }
 
   /* Poem card */
@@ -121,13 +157,15 @@
     border: 1px solid var(--glass-border);
     border-radius: 28px;
     backdrop-filter: blur(20px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
     text-align: center;
     opacity: 0;
     transform: translateY(30px) scale(0.95);
     transition: opacity 0.5s ease, transform 0.5s ease;
     display: none;
     color: var(--text);
+    position: relative;
+    z-index: 10;
   }
 
   #poem-box.visible {
@@ -140,7 +178,7 @@
     margin-bottom: 1.2rem;
     font-size: 1.6rem;
     font-weight: 700;
-    color: var(--accent);
+    color: #0369a1;
     letter-spacing: 0.05rem;
   }
 
@@ -154,51 +192,36 @@
 
   .hint {
     font-size: 0.9rem;
-    color: #64748b;
+    color: #475569;
     font-style: italic;
     margin-bottom: 1.6rem;
   }
 
   .close {
     cursor: pointer;
-    color: var(--accent);
+    color: #0369a1;
     font-weight: 600;
     text-decoration: none;
     padding: 0.6rem 1.4rem;
-    border: 1px solid var(--accent);
+    border: 1px solid #0369a1;
     border-radius: 12px;
     display: inline-block;
     transition: all 0.3s ease;
   }
 
   .close:hover {
-    background: var(--accent);
-    color: var(--bg-start);
-    box-shadow: 0 0 20px var(--accent-soft);
-  }
-
-  /* Floating particles */
-  .particle {
-    position: fixed;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1;
-    animation: float 12s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
-    33% { transform: translateY(-20px) translateX(15px); opacity: 0.7; }
-    66% { transform: translateY(10px) translateX(-10px); opacity: 0.5; }
+    background: #0369a1;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(3,105,161,0.3);
   }
 
   @media (max-width: 480px) {
     .word-wrapper {
       gap: 0.4rem;
     }
-    h1 {
-      font-size: clamp(2rem, 22vw, 6rem);
-      letter-spacing: 0.2rem;
+    .word-wrapper {
+      font-size: clamp(3rem, 22vw, 8rem);
+      gap: 0.4rem;
     }
     #poem-box {
       padding: 1.8rem 1.2rem;
@@ -208,6 +231,9 @@
 </style>
 </head>
 <body>
+
+<!-- Rain -->
+<div id="rain"></div>
 
 <div class="word-wrapper">
   <span class="letter" data-letter="Y" role="button" tabindex="0"><span>Y</span></span>
@@ -229,27 +255,27 @@
   const poems = {
     Y: {
       title: "Y ile başlayan şiir",
-      text: "Yağmur damlaları pencereye çarpar,\nYolun sonu hep bir umuttur gönlümde,\nYıldızlar geceye nur dökülür,\nYanar sevgi kalbinde sonsuza dek."
+      text: "Yıldızlar kayar gecenin siyahında,\nYağmur düşer toprağa usulca,\nYollar uzanır sonsuza kadar,\nYürek sevgiyle dolup taşar."
     },
     A: {
       title: "A ile başlayan şiir",
-      text: "Akşam şafakı yanar, kızıl sarışık,\nAğaç dallarında rüzgar dans eder,\nAşkın rengi mavidir, gökten düşer,\nAman dünya ne güzelsin sana."
+      text: "Akşam kızılıyla boyanır gökyüzü,\nAğaçlar rüzgârla dansa kalkar,\nAşk bir nehir gibi akar içimde,\nAnılar hep yanımda kalır."
     },
     Ğ: {
       title: "Ğ ile başlayan şiir",
-      text: "Türkçe alfabesinde Ğ harfiyle başlayan kelime yoktur.\nO yüzden yağmurun sesiyle küçük bir şiir:\n\nGecenin sessizliğinde duyarız\nYağmurun ince fırtınasını,\nRüzgarla beraber sonsuza kadar."
+      text: "Türkçe alfabesinde Ğ ile başlayan kelime yoktur.\nAma yağmurla ilgili küçük bir şiir:\n\nGökyüzünden ince ince,\nYağmur damlaları düşer,\nToprağa can verir."
     },
     M: {
       title: "M ile başlayan şiir",
-      text: "Mavi göklerin altında yürürüm,\nMutluluğu arar elimdeki rüzgar,\nMelekler gibi uzun zumrut güller,\nMutluluk hep yanımda olur."
+      text: "Masmavi bir gökyüzü altında,\nMutluluk hep yanımda yürür,\nMelekler gibi hafif bir rüzgâr,\nMutlu anlar biriktiririm."
     },
     U: {
       title: "U ile başlayan şiir",
-      text: "Uzaklarda kalan bir deniz,\nUçan kuşlar gölgenin altında,\nUmudun peşinden koşar gönlüm,\nUnutulmaz anlar yaşarız."
+      text: "Ufkun ötesinde bir deniz,\nUçan kuşlar özgürlüğün simgesi,\nUmudun ateşi hiç sönmez,\nUnutulmaz bir hayat yaşarız."
     },
     R: {
       title: "R ile başlayan şiir",
-      text: "Rüzgar eser akşam renkleriyle,\nRüya gördüm bir gece gecenin ortasında,\nRenkli dünya, seninle beraber,\nRahmet yağar başımıza her gün."
+      text: "Rüzgâr eser sabahın serinliğinde,\nRüya gibi bir dünya kurarız,\nRenk renk çiçekler açar bahçede,\nRahmet yağar her yana."
     }
   };
 
@@ -284,20 +310,20 @@
     poemBox.classList.remove("visible");
   });
 
-  // Decorative floating particles
-  for (let i = 0; i < 12; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    const size = Math.random() * 60 + 20;
-    p.style.width = size + "px";
-    p.style.height = size + "px";
-    p.style.left = Math.random() * 100 + "vw";
-    p.style.top = Math.random() * 100 + "vh";
-    p.style.background = `rgba(${Math.random()*60+195}, ${Math.random()*60+195}, 255, ${Math.random()*0.4 + 0.1})`;
-    p.style.animationDelay = Math.random() * 12 + "s";
-    p.style.animationDuration = (Math.random() * 8 + 10) + "s";
-    document.body.appendChild(p);
+  // Rain drops
+  const rainContainer = document.getElementById("rain");
+  const rainCount = 120;
+  for (let i = 0; i < rainCount; i++) {
+    const drop = document.createElement("div");
+    drop.className = "drop";
+    drop.style.left = Math.random() * 100 + "vw";
+    drop.style.animationDuration = (Math.random() * 1.2 + 0.6) + "s";
+    drop.style.animationDelay = Math.random() * 2 + "s";
+    drop.style.opacity = Math.random() * 0.5 + 0.3;
+    rainContainer.appendChild(drop);
   }
+
+  // Daisy field removed - using real photo background
 </script>
 
 </body>
